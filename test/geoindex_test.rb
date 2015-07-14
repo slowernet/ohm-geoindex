@@ -47,6 +47,9 @@ class GeoindexTest < Test::Unit::TestCase
     assert_equal(a, [@coogee, @bondi])
     a = Beach.within(@coogee, '10000m', 'asc')
     assert_equal(a, [@coogee, @bondi])
+    assert_raise do
+      a = Beach.within(@coogee, 'one billion inches', 'asc')
+    end
   end
 
   def test_sort
@@ -57,8 +60,9 @@ class GeoindexTest < Test::Unit::TestCase
   end
 
   def test_index_delete
-    @manly.delete
-    a = Ohm.redis.call('ZCARD', @bondi.class.key[:geoindex])
-    assert_equal(a, 2)
+    [@bondi, @coogee, @manly].each_with_index do |b, i|
+      b.delete 
+      assert_equal(Ohm.redis.call('ZCARD', Beach.key[:geoindex]), 3-(i+1))
+    end
   end
 end

@@ -1,6 +1,5 @@
-require "rake/testtask"
-# require "appraisal"
 require "bundler/setup"
+require "rake/testtask"
 
 REDIS_PID = File.join(File.dirname(__FILE__), "test", "tmp", "redis.pid")
 REDIS_LOG = File.join(File.dirname(__FILE__), "test", "tmp", "redis.log")
