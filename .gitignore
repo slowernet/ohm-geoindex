@@ -1,0 +1,6 @@
+.DS_Store
+.bundle
+Gemfile.lock
+test/redis-server
+test/tmp
+vendor/*
