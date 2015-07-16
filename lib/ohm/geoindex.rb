@@ -34,14 +34,25 @@ module Ohm
         @geoindex = coords
       end
 
-      def within(center, radius, sort = nil, with = nil)
+      def within(center, radius, withdist: nil, sort: nil)
         raise IndexNotFound unless @geoindex
-        if center.is_a?(self.ancestors.first)
-          ids = redis.call('GEORADIUSBYMEMBER', key[:geoindex], center.id, *self.parse_radius(radius), sort)
+
+        args = center.is_a?(self.ancestors.first) ? ['GEORADIUSBYMEMBER', key[:geoindex], center.id] : ['GEORADIUS', key[:geoindex], *center]
+        args << parse_radius(radius).flatten
+        args << 'withdist' if withdist
+        args << sort if sort
+        results = redis.call(*args.flatten)
+
+        # extract ids so we can fetch all at once
+        # can be [:id, :id, ...] or [[:id, :dist], [:id, :dist], ...]
+        ids = results.map { |r| [*r][0] }
+        models = self.ancestors.first.fetch(ids)
+
+        if withdist
+          results.each_with_index.map { |r,i| [models[i], r[1].to_f] }
         else
-          ids = redis.call('GEORADIUS', key[:geoindex], *center, *self.parse_radius(radius), sort)
+          models
         end
-        self.ancestors.first.fetch(ids)
       end
 
       protected

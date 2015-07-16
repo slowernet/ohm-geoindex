@@ -10,5 +10,6 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/slowernet/ohm-geoindex'
   s.license     = 'MIT'
 
-  s.add_runtime_dependency "ohm", '>= 2.2.0'
+  s.add_dependency "ohm", '>= 2.2.0'
+  s.add_development_dependency 'test-unit'
 end

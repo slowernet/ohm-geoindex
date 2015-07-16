@@ -15,22 +15,35 @@ end
 class GeoindexTest < Test::Unit::TestCase
   def setup
     Ohm.flush
-    @manly = Beach.create(latitude: -33.797948, longitude: 151.289414)
-    @bondi = Beach.create(latitude: -33.891472, longitude: 151.277243)
-    @coogee = Beach.create(latitude: -33.921017, longitude: 151.257566) # ~14km from manly
+    @manly = Beach.create(longitude: 151.289414, latitude: -33.797948)
+    @bondi = Beach.create(longitude: 151.277243, latitude: -33.891472)
+    @coogee = Beach.create(longitude: 151.257566, latitude: -33.921017) # ~14km from manly
+  end
+
+  def test_without_sort
+    a = Beach.within(@coogee, '10 km')
+    assert_equal(2, a.size)
   end
 
   def test_within_by_object
-    a = Beach.within(@coogee, '10 km', 'asc')
-    assert_equal(a, [@coogee, @bondi])
-    a = Beach.within(@coogee, '20 km', 'asc')
-    assert_equal(a, [@coogee, @bondi, @manly])
+    a = Beach.within(@coogee, '10 km', sort: 'asc')
+    assert_equal([@coogee, @bondi], a)
+    a = Beach.within(@coogee, '20 km', sort: 'asc')
+    assert_equal([@coogee, @bondi, @manly], a)
   end
 
   def test_within_by_coords
-    a = Beach.within([151.257566, -33.921017], '10 km', 'desc') # coogee
-    assert_equal(a.size, 2)
-    assert_equal(a.last, @coogee)
+    a = Beach.within([151.257566, -33.921017], '10 km', sort: 'desc') # coogee
+    assert_equal(2, a.size)
+    assert_equal(@coogee, a.last)
+  end
+
+  def test_within_with_distance
+    a = Beach.within(@coogee, '10 km', sort: 'asc', withdist: true)
+    assert_equal(2, a.size)
+    assert_equal([@bondi, 3.7550], a.last)
+    a = Beach.within(@coogee, '10 km', withdist: true)
+    assert_equal(2, a.size)
   end
 
   def test_index_update
@@ -43,26 +56,26 @@ class GeoindexTest < Test::Unit::TestCase
   end
 
   def test_radius_parsing
-    a = Beach.within(@coogee, '10 km', 'asc')
-    assert_equal(a, [@coogee, @bondi])
-    a = Beach.within(@coogee, '10000m', 'asc')
-    assert_equal(a, [@coogee, @bondi])
+    a = Beach.within(@coogee, '10 km', sort: 'asc')
+    assert_equal([@coogee, @bondi], a)
+    a = Beach.within(@coogee, '10000m', sort: 'asc')
+    assert_equal([@coogee, @bondi], a)
     assert_raise do
-      a = Beach.within(@coogee, 'one billion inches', 'asc')
+      a = Beach.within(@coogee, 'one billion feet', 'asc')
     end
   end
 
   def test_sort
-    a = Beach.within(@coogee, '10 km', 'asc')
-    assert_equal(a, [@coogee, @bondi])
-    a = Beach.within(@coogee, '10000m', 'desc')
-    assert_equal(a, [@bondi, @coogee])
+    a = Beach.within(@coogee, '10 km', sort: 'asc')
+    assert_equal([@coogee, @bondi], a)
+    a = Beach.within(@coogee, '10000m', sort: 'desc')
+    assert_equal([@bondi, @coogee], a)
   end
 
   def test_index_delete
     [@bondi, @coogee, @manly].each_with_index do |b, i|
       b.delete 
-      assert_equal(Ohm.redis.call('ZCARD', Beach.key[:geoindex]), 3-(i+1))
+      assert_equal(3-(i+1), Ohm.redis.call('ZCARD', Beach.key[:geoindex]))
     end
   end
 end
