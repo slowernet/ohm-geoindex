@@ -36,11 +36,12 @@ module Ohm
 
       def within(center, radius, withdist: nil, sort: nil)
         raise IndexNotFound unless @geoindex
+        raise raise ArgumentError, "center must be a set of coordinates or model already in the index." unless center
 
         args = center.is_a?(self.ancestors.first) ? ['GEORADIUSBYMEMBER', key[:geoindex], center.id] : ['GEORADIUS', key[:geoindex], *center]
-        args << parse_radius(radius).flatten
-        args << 'withdist' if withdist
+        args << parse_radius(radius)
         args << sort if sort
+        args << 'withdist' if withdist
         results = redis.call(*args.flatten)
 
         # extract ids so we can fetch all at once

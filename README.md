@@ -13,7 +13,7 @@ Setup
 1. Add the gem:
 
 ```ruby
-gem 'ohm-geoindex'
+gem 'ohm-geoindex', require: 'ohm/geoindex'
 ````
 
 1. Include the module in your model:
@@ -40,11 +40,11 @@ To perform a radius query, use the `within` class method.
 @bondi = Beach.create(latitude: -33.891472, longitude: 151.277243)
 @coogee = Beach.create(latitude: -33.921017, longitude: 151.257566) # ~14km from manly
 
->> Beach.within(@coogee, '10 km', 'asc')
-=> [@coogee, @bondi]
->> Beach.within(@coogee, '10 mi', 'desc')
+>> Beach.within(@coogee, '10 mi', sort: 'desc')
 => [@manly, @bondi, @coogee]
->> Beach.within([151.257566, -33.921017], '10 mi', 'asc')	# coords are @coogee's
+>> Beach.within(@coogee, '10 km', sort: 'asc', withdist: true)
+=> [@coogee, @bondi]
+>> Beach.within([151.257566, -33.921017], '10 mi', sort: 'asc')	# coords are @coogee's
 => [@coogee, @bondi, @manly]
 ```
 
@@ -53,7 +53,7 @@ See the Redis docs for [`GEORADIUS`](http://redis.io/commands/georadius) and [`G
 Tests
 --------------
 
-`rake` will attempt to start a redis binary at ./test/redis-server at port 7771 for the duration of the test run.
+`rake test` will attempt to start a redis binary at ./test/redis-server port 7771 for the test run.
 
 Requirements
 ------------
