@@ -7,16 +7,19 @@ ohm-geoindex
 
 A plugin for [Ohm](https://github.com/soveran/ohm) models which enables basic geospatial queries via the Redis [geohashing](http://redis.io/commands#geo) [API](http://cristian.regolo.cc/2015/07/07/introducing-the-geo-api-in-redis.html).
 
-Setup
+Installation
 -----
 
-1. Add the gem:
+Add the gem:
 
 ```ruby
 gem 'ohm-geoindex', require: 'ohm/geoindex'
 ````
 
-2. Include the module in your model and specify the attributes to be indexed. (Note that `(longitude, latitude)` is the ordering convention used throughout the geo API.)
+Usage
+-----
+
+Include the module in your model and specify the attributes to be indexed. (Note that `(longitude, latitude)` is the ordering convention used throughout the geo API.)
 
 ```ruby
 class Beach < Ohm::Model
@@ -27,9 +30,6 @@ class Beach < Ohm::Model
   geoindex [:longitude, :latitude]
 end
 ```
-
-Usage
------
 
 To perform a radius query, use the `within` class method.
 

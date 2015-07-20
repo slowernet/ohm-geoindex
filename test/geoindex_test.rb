@@ -46,6 +46,15 @@ class GeoindexTest < Test::Unit::TestCase
     assert_equal(2, a.size)
   end
 
+  def test_center_missing
+    assert_raise do
+      Beach.within(nil, '100 m', sort: 'asc')
+    end
+    assert_raise do
+      Beach.within([40, 40, 40], '100 m', sort: 'asc')
+    end
+  end
+
   def test_index_update
     a = Ohm.redis.call('ZSCORE', @bondi.class.key[:geoindex], @bondi.id)
     @bondi.update(lat: -33.921017, lng: 151.257566)  # bondi moves to coogee
@@ -60,8 +69,12 @@ class GeoindexTest < Test::Unit::TestCase
     assert_equal([@coogee, @bondi], a)
     a = Beach.within(@coogee, '10000m', sort: 'asc')
     assert_equal([@coogee, @bondi], a)
+    a = Beach.within(@coogee, '10000    m', sort: 'asc')
+    assert_equal([@coogee, @bondi], a)
+    a = Beach.within(@coogee, '0 km', sort: 'asc')
+    assert_equal([@coogee], a)
     assert_raise do
-      a = Beach.within(@coogee, 'one billion feet', 'asc')
+      Beach.within(@coogee, 'one billion feet', sort: 'asc')
     end
   end
 

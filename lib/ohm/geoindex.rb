@@ -37,7 +37,9 @@ module Ohm
 
       def within(center, radius, withdist: nil, sort: nil)
         raise IndexNotFound unless @geoindex
-        raise raise ArgumentError, "center must be a set of coordinates or model already in the index." unless center
+        unless center.is_a?(self.ancestors.first) || (center.is_a?(Array) && center.size == 2)
+          raise ArgumentError, "center must be a set of [lng, lat] coordinates or model already in the index." 
+        end
 
         args = center.is_a?(self.ancestors.first) ? ['GEORADIUSBYMEMBER', key[:geoindex], center.id] : ['GEORADIUS', key[:geoindex], *center]
         args << parse_radius(radius)
