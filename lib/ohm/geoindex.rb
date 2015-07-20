@@ -2,7 +2,7 @@ require 'ohm'
 
 module Ohm
   module Geoindex
-    VERSION = "0.0.1"
+    VERSION = "0.0.2"
     
     def self.included(model)
       begin
@@ -18,7 +18,8 @@ module Ohm
       super
       redis.queue('MULTI')
       redis.queue('ZREM', self.class.key[:geoindex], self.id)
-      redis.queue('GEOADD', self.class.key[:geoindex], self.longitude, self.latitude, self.id)
+      coordinates = self.class.instance_variable_get('@geoindex').map { |d| attributes[d] }
+      redis.queue('GEOADD', self.class.key[:geoindex], *coordinates, self.id)
       redis.queue('EXEC')
       redis.commit
       self

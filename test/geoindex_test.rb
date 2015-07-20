@@ -7,17 +7,17 @@ Ohm.redis = Redic.new(ENV["REDIS_URL"])
 class Beach < Ohm::Model
   include Ohm::Geoindex
 
-  attribute :longitude
-  attribute :latitude
-  geoindex [:longitude, :latitude]
+  attribute :lng
+  attribute :lat
+  geoindex [:lng, :lat]
 end
 
 class GeoindexTest < Test::Unit::TestCase
   def setup
     Ohm.flush
-    @manly = Beach.create(longitude: 151.289414, latitude: -33.797948)
-    @bondi = Beach.create(longitude: 151.277243, latitude: -33.891472)
-    @coogee = Beach.create(longitude: 151.257566, latitude: -33.921017) # ~14km from manly
+    @manly = Beach.create(lng: 151.289414, lat: -33.797948)
+    @bondi = Beach.create(lng: 151.277243, lat: -33.891472)
+    @coogee = Beach.create(lng: 151.257566, lat: -33.921017) # ~14km from manly
   end
 
   def test_without_sort
@@ -48,7 +48,7 @@ class GeoindexTest < Test::Unit::TestCase
 
   def test_index_update
     a = Ohm.redis.call('ZSCORE', @bondi.class.key[:geoindex], @bondi.id)
-    @bondi.update(latitude: -33.921017, longitude: 151.257566)  # bondi moves to coogee
+    @bondi.update(lat: -33.921017, lng: 151.257566)  # bondi moves to coogee
     b = Ohm.redis.call('ZSCORE', @bondi.class.key[:geoindex], @bondi.id)
     assert_not_equal(a, b)
     c = Ohm.redis.call('ZSCORE', @bondi.class.key[:geoindex], @coogee.id)

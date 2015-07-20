@@ -3,7 +3,7 @@ require "rake/testtask"
 
 REDIS_PID = File.join(File.dirname(__FILE__), "test", "tmp", "redis.pid")
 REDIS_LOG = File.join(File.dirname(__FILE__), "test", "tmp", "redis.log")
-REDIS_PORT = 7771
+REDIS_PORT = ENV['REDIS_PORT'] || 7771
 
 task :default => [:setup, :_test, :teardown]
 
