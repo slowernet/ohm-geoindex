@@ -19,7 +19,7 @@ gem 'ohm-geoindex', require: 'ohm/geoindex'
 Usage
 -----
 
-Include the module in your model and specify the attributes to be indexed. (Note that `(longitude, latitude)` is the ordering convention used throughout the geo API.)
+Include the module in your model and specify the attributes to be indexed. Note that `[longitude, latitude]` is the ordering convention used throughout the Redis geo API.
 
 ```ruby
 class Beach < Ohm::Model
@@ -62,6 +62,11 @@ This plugin works with Ohm >= 2.2.0.
 
 Changelog
 ---------
+
+0.0.3
+
+* Add support for `count` (limit) parameter
+* README fixes
 
 0.0.2
 
