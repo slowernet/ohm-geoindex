@@ -1,7 +1,7 @@
 ohm-geoindex
 =============
 
-### In early development. Requires Redis >= 3.2.
+### In development. Requires Redis >= 3.2.
 
 <!-- [![Build Status](https://travis-ci.org/slowernet/ohm-geoindex.png?branch=master)](https://travis-ci.org/slowernet/ohm-geoindex) -->
 
@@ -41,9 +41,11 @@ To perform a radius query, use the `within` class method.
 >> Beach.within(@coogee, '10 mi', sort: 'desc')
 => [@manly, @bondi, @coogee]
 >> Beach.within(@coogee, '10 km', sort: 'asc', withdist: true)
-=> [@coogee, @bondi]
+=> [[@coogee, 0.0], [@bondi, 4.122]
 >> Beach.within([151.257566, -33.921017], '10 mi', sort: 'asc')	# coords are @coogee's
 => [@coogee, @bondi, @manly]
+>> Beach.within([151.257566, -33.921017], '10 mi', sort: 'asc', limit: 2)	# coords are @coogee's
+=> [@coogee, @bondi]
 ```
 
 See the Redis docs for [`GEORADIUS`](http://redis.io/commands/georadius) and [`GEOADD`](http://redis.io/commands/geoadd) for allowed unit syntax.
