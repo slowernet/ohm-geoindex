@@ -2,7 +2,7 @@ require 'ohm'
 
 module Ohm
   module Geoindex
-    VERSION = "0.0.2"
+    VERSION = "0.0.3"
     
     def self.included(model)
       begin
@@ -35,7 +35,7 @@ module Ohm
         @geoindex = coords
       end
 
-      def within(center, radius, withdist: nil, sort: nil)
+      def within(center, radius, withdist: nil, sort: nil, count: nil)
         raise IndexNotFound unless @geoindex
         unless center.is_a?(self.ancestors.first) || (center.is_a?(Array) && center.size == 2)
           raise ArgumentError, "center must be a set of [lng, lat] coordinates or model already in the index." 
@@ -43,9 +43,11 @@ module Ohm
 
         args = center.is_a?(self.ancestors.first) ? ['GEORADIUSBYMEMBER', key[:geoindex], center.id] : ['GEORADIUS', key[:geoindex], *center]
         args << parse_radius(radius)
+        args << "withdist" if withdist
         args << sort if sort
-        args << 'withdist' if withdist
-        results = redis.call(*args.flatten)
+        args << ["count", count] if count
+
+        results = redis.call(*(args.flatten))
 
         # extract ids so we can fetch all at once
         # can be [:id, :id, ...] or [[:id, :dist], [:id, :dist], ...]

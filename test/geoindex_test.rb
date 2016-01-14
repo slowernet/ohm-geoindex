@@ -38,6 +38,12 @@ class GeoindexTest < Test::Unit::TestCase
     assert_equal(@coogee, a.last)
   end
 
+  def test_count
+    a = Beach.within([151.257566, -33.921017], '10 km', sort: 'asc', count: 1) # coogee
+    assert_equal(1, a.size)
+    assert_equal(@coogee, a.first)
+  end
+   
   def test_within_with_distance
     a = Beach.within(@coogee, '10 km', sort: 'asc', withdist: true)
     assert_equal(2, a.size)
